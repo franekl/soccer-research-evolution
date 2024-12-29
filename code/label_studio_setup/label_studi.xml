@@ -1,0 +1,20 @@
+ <!-- Categories -->
+  <Choices name="category" toName="abstract" choice="multiple" required="true">
+    <Choice value="Innovative Technologies" style="margin-bottom: 0; "/>
+    <Header value="Includes VAR, machine learning and other technologies" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Physical Attributes"/>
+    <Header value="Includes exercises to boost physical attributes, height, weight, length of arms and legs, biological development, adolescent growth studies" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Medical / Injuries"/>
+    <Header value="Includes broken foot, twisted, sprained ankles, torn ACL" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Psychology"/>
+    <Header value="Includes exercises to boost players psychological state during matches and outside the matches (education)" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Tactics analysis"/>
+    <Header value="Includes exercises to increase tactical outcome, tactical analytics and other tactical related topics" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Scouting / Finance"/>
+    <Header value="Includes recruitment, sponsorships, scouting valuable players, more tickets sales and other finance related topics" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Other"/>
+    <Header value="Other soccer topics such as referee bias, thematic analysis and coronavirus" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+    <Choice value="Not Soccer Related"/>
+    <Header value="Not soccer related topic" style="font-size: 0.7em; color: lightgray; margin-bottom: 5; margin-top: 0;" />
+  </Choices>
+</View>
