@@ -85,6 +85,18 @@ class DataTransformer:
             citations.extend(normalized_citations)
         return self.calculate_h_index(citations)
 
+    def get_max_author_h_index(self, authors, pub_date):
+        """
+        Calculate the maximum h-index for any individual author up to the given publication date.
+        """
+        if not authors:
+            return 0
+        max_h_index = 0
+        for author in authors:
+            author_citations = [c for date, c in self.author_history[author] if date <= pub_date]
+            max_h_index = max(max_h_index, self.calculate_h_index(author_citations))
+        return max_h_index
+
     def get_journal_h_index(self, journal, pub_date):
         """
         Calculate the h-index for a journal up to the given publication date.
@@ -107,6 +119,18 @@ class DataTransformer:
             citations.extend(normalized_citations)
         return self.calculate_h_index(citations)
 
+    def get_max_institution_h_index(self, institutions, pub_date):
+        """
+        Calculate the maximum h-index for any individual institution up to the given publication date.
+        """
+        if not institutions:
+            return 0
+        max_h_index = 0
+        for inst in institutions:
+            inst_citations = [c for date, c in self.institution_history[inst] if date <= pub_date]
+            max_h_index = max(max_h_index, self.calculate_h_index(inst_citations))
+        return max_h_index
+
     def transform(self, df):
         """
         Transform the input DataFrame by adding extracted and calculated features.
@@ -126,17 +150,23 @@ class DataTransformer:
             if pd.notna(row["journal_name"]) else None, axis=1)
 
         # h-index based features normalized per count
-        df["author_h_index"] = df.apply(
+        df["avg_author_h_index"] = df.apply(
             lambda row: self.get_normalized_author_h_index(row["authors"], row["publication_date"]), axis=1
+        )
+        df["max_author_h_index"] = df.apply(
+            lambda row: self.get_max_author_h_index(row["authors"], row["publication_date"]), axis=1
         )
         df["journal_h_index"] = df.apply(
             lambda row: self.get_journal_h_index(row["journal_name"], row["publication_date"]), axis=1
         )
-        df["institution_h_index"] = df.apply(
+        df["avg_institution_h_index"] = df.apply(
             lambda row: self.get_normalized_institution_h_index(row["institutions"], row["publication_date"]), axis=1
         )
+        df["max_institution_h_index"] = df.apply(
+            lambda row: self.get_max_institution_h_index(row["institutions"], row["publication_date"]), axis=1
+        )
 
-        df["num_authors"] = df["authors"].apply(len)  
-        df["num_institutions"] = df["institutions"].apply(len) 
+        df["num_authors"] = df["authors"].apply(len)  # Number of authors
+        df["num_institutions"] = df["institutions"].apply(len)  # Unique number of institutions
 
         return df
