@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import ast
 from collections import defaultdict
+from datetime import timedelta
 
 class DataTransformer:
     def __init__(self):
@@ -54,7 +55,7 @@ class DataTransformer:
                         countries.add(institution["country_code"])
 
             return authors, list(institutions), list(countries)
-        except Exception as e:
+        except Exception:
             return [], [], []
 
     @staticmethod
@@ -69,74 +70,63 @@ class DataTransformer:
             if 'source' in location_data and 'display_name' in location_data['source']:
                 return location_data['source']['display_name']
             return None
-        except Exception as e:
+        except Exception:
             return None
 
-    def get_normalized_author_h_index(self, authors, pub_date):
+    def get_avg_h_index(self, entities, pub_date, history):
         """
-        Calculate the normalized h-index for authors up to the given publication date.
+        Calculate the average h-index for a list of entities (authors or institutions) up to the given publication date.
         """
-        if not authors:
+        if not entities:
             return 0
+        h_indices = []
+        for entity in entities:
+            citations = [c for date, c in history[entity] if date <= pub_date]
+            h_indices.append(self.calculate_h_index(citations))
+        return np.mean(h_indices) if h_indices else 0
+
+    def get_max_h_index(self, entities, pub_date, history):
+        """
+        Calculate the maximum h-index for a list of entities (authors or institutions) up to the given publication date.
+        """
+        if not entities:
+            return 0
+        h_indices = []
+        for entity in entities:
+            citations = [c for date, c in history[entity] if date <= pub_date]
+            h_indices.append(self.calculate_h_index(citations))
+        return max(h_indices) if h_indices else 0
+
+    def get_avg_citations_past_year(self, entities, pub_date, history):
+        """
+        Calculate the average citations for entities within the past year leading up to a specific date.
+        """
+        if not entities:
+            return 0
+        one_year_ago = pub_date - timedelta(days=365)
         citations = []
-        for author in authors:
-            author_citations = [c for date, c in self.author_history[author] if date <= pub_date]
-            normalized_citations = [c / len(authors) for c in author_citations]  # Normalize per author
-            citations.extend(normalized_citations)
-        return self.calculate_h_index(citations)
+        for entity in entities:
+            citations.extend([c for date, c in history[entity] if one_year_ago <= date <= pub_date])
+        return np.mean(citations) if citations else 0
 
-    def get_max_author_h_index(self, authors, pub_date):
+    def get_max_citations_past_year(self, entities, pub_date, history):
         """
-        Calculate the maximum h-index for any individual author up to the given publication date.
+        Calculate the maximum citations for entities within the past year leading up to a specific date.
         """
-        if not authors:
+        if not entities:
             return 0
-        max_h_index = 0
-        for author in authors:
-            author_citations = [c for date, c in self.author_history[author] if date <= pub_date]
-            max_h_index = max(max_h_index, self.calculate_h_index(author_citations))
-        return max_h_index
-
-    def get_journal_h_index(self, journal, pub_date):
-        """
-        Calculate the h-index for a journal up to the given publication date.
-        """
-        if not journal:
-            return 0
-        citations = [c for date, c in self.journal_history[journal] if date <= pub_date]
-        return self.calculate_h_index(citations)
-
-    def get_normalized_institution_h_index(self, institutions, pub_date):
-        """
-        Calculate the normalized h-index for institutions up to the given publication date.
-        """
-        if not institutions:
-            return 0
-        citations = []
-        for inst in institutions:
-            inst_citations = [c for date, c in self.institution_history[inst] if date <= pub_date]
-            normalized_citations = [c / len(institutions) for c in inst_citations] 
-            citations.extend(normalized_citations)
-        return self.calculate_h_index(citations)
-
-    def get_max_institution_h_index(self, institutions, pub_date):
-        """
-        Calculate the maximum h-index for any individual institution up to the given publication date.
-        """
-        if not institutions:
-            return 0
-        max_h_index = 0
-        for inst in institutions:
-            inst_citations = [c for date, c in self.institution_history[inst] if date <= pub_date]
-            max_h_index = max(max_h_index, self.calculate_h_index(inst_citations))
-        return max_h_index
+        one_year_ago = pub_date - timedelta(days=365)
+        max_citations = []
+        for entity in entities:
+            max_citations.append(max([c for date, c in history[entity] if one_year_ago <= date <= pub_date], default=0))
+        return max(max_citations) if max_citations else 0
 
     def transform(self, df):
         """
         Transform the input DataFrame by adding extracted and calculated features.
         """
         df["publication_date"] = pd.to_datetime(df["publication_date"], errors="coerce")
-        df = df.sort_values(by="publication_date")  # chronological processing
+        df = df.sort_values(by="publication_date")  # Ensure chronological processing
 
         df["authors"], df["institutions"], df["countries"] = zip(*df.apply(
             lambda row: self.parse_authorships(row["authorships"], row["cited_by_count"], row["publication_date"])
@@ -149,24 +139,36 @@ class DataTransformer:
             (row["publication_date"], row["cited_by_count"]))
             if pd.notna(row["journal_name"]) else None, axis=1)
 
-        # h-index based features normalized per count
         df["avg_author_h_index"] = df.apply(
-            lambda row: self.get_normalized_author_h_index(row["authors"], row["publication_date"]), axis=1
+            lambda row: self.get_avg_h_index(row["authors"], row["publication_date"], self.author_history), axis=1
         )
         df["max_author_h_index"] = df.apply(
-            lambda row: self.get_max_author_h_index(row["authors"], row["publication_date"]), axis=1
-        )
-        df["journal_h_index"] = df.apply(
-            lambda row: self.get_journal_h_index(row["journal_name"], row["publication_date"]), axis=1
+            lambda row: self.get_max_h_index(row["authors"], row["publication_date"], self.author_history), axis=1
         )
         df["avg_institution_h_index"] = df.apply(
-            lambda row: self.get_normalized_institution_h_index(row["institutions"], row["publication_date"]), axis=1
+            lambda row: self.get_avg_h_index(row["institutions"], row["publication_date"], self.institution_history), axis=1
         )
         df["max_institution_h_index"] = df.apply(
-            lambda row: self.get_max_institution_h_index(row["institutions"], row["publication_date"]), axis=1
+            lambda row: self.get_max_h_index(row["institutions"], row["publication_date"], self.institution_history), axis=1
+        )
+        df["journal_h_index"] = df.apply(
+            lambda row: self.get_max_h_index([row["journal_name"]], row["publication_date"], self.journal_history), axis=1
         )
 
-        df["num_authors"] = df["authors"].apply(len)  # Number of authors
-        df["num_institutions"] = df["institutions"].apply(len)  # Unique number of institutions
+        df["avg_author_citations_past_year"] = df.apply(
+            lambda row: self.get_avg_citations_past_year(row["authors"], row["publication_date"], self.author_history), axis=1
+        )
+        df["max_author_citations_past_year"] = df.apply(
+            lambda row: self.get_max_citations_past_year(row["authors"], row["publication_date"], self.author_history), axis=1
+        )
+        df["avg_institution_citations_past_year"] = df.apply(
+            lambda row: self.get_avg_citations_past_year(row["institutions"], row["publication_date"], self.institution_history), axis=1
+        )
+        df["max_institution_citations_past_year"] = df.apply(
+            lambda row: self.get_max_citations_past_year(row["institutions"], row["publication_date"], self.institution_history), axis=1
+        )
+
+        df["num_authors"] = df["authors"].apply(len)
+        df["num_institutions"] = df["institutions"].apply(len)
 
         return df
