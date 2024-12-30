@@ -1,3 +1,4 @@
+#%% 
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -5,12 +6,13 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
 from scipy import stats
-
+#%%
 def load_and_prepare_data():
-    df_combined = pd.read_csv('/Users/jonathanoitz/AAA/soccer-research-evolution/data/data_export.csv')
+    df_combined = pd.read_csv('../../../data/data_export.csv')
     df_combined["year"] = df_combined["publication_year"]
-    df_combined = df_combined[df_combined["year"] >= 2018]
-    df_combined = df_combined[df_combined["year"] < 2024]
+    # df_combined = df_combined[df_combined["year"] >= 2018]
+    # df_combined = df_combined[df_combined["year"] < 2024]
+    df_combined = df_combined[df_combined["year"] < 2021]
     
     # Add log transformation
     df_combined["cited_by_count_log"] = np.log1p(df_combined["cited_by_count"])
@@ -169,3 +171,4 @@ if __name__ == "__main__":
     
     print("\nRunning raw citations analysis...")
     raw_results = run_analysis(df_combined, use_log=False)
+# %%
