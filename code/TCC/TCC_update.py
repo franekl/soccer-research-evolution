@@ -187,7 +187,7 @@ def plot_results(category_yearly_collaboration, category_avg_tcc, use_log, outpu
     
     plt.tight_layout()
     plt.savefig(
-        os.path.join(output_dir, f'tcc_evolution_{"log" if use_log else "raw"}.png'),
+        os.path.join(output_dir, f'tcc_evolution_{"log" if use_log else "raw"}.jpg'),
         dpi=300, bbox_inches='tight'
     )
     plt.close()
@@ -219,7 +219,7 @@ def plot_results(category_yearly_collaboration, category_avg_tcc, use_log, outpu
     
     plt.tight_layout()
     plt.savefig(
-        os.path.join(output_dir, f'final_tcc_analysis_{"log" if use_log else "raw"}.png'),
+        os.path.join(output_dir, f'final_tcc_analysis_{"log" if use_log else "raw"}.jpg'),
         dpi=300, bbox_inches='tight'
     )
     plt.close()
@@ -244,7 +244,7 @@ def plot_author_tcc(author_yearly_tcc, author_stats, author_name, use_log, outpu
     
     plt.tight_layout()
     plt.savefig(
-        os.path.join(output_dir, f'author_tcc_{author_name.replace(" ", "_")}.png'),
+        os.path.join(output_dir, f'author_tcc_{author_name.replace(" ", "_")}.jpg'),
         dpi=400, bbox_inches='tight'
     )
     plt.close()
