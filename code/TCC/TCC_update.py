@@ -201,17 +201,21 @@ def plot_results(category_yearly_collaboration, category_avg_tcc, use_log, outpu
     categories, scores = zip(*sorted_categories)
     
     plt.figure(figsize=(12, 7))
-    bars = plt.barh(categories, scores, color='skyblue')
-    plt.xlabel(f'Average TCC ({("log-transformed" if use_log else "raw")} citations)')  
-    plt.ylabel('Category')
-    plt.title('Top Categories by TCC')
-    plt.gca().invert_yaxis()
+    bars = plt.bar(categories, scores, color='#416788', alpha=0.8)
+    # plt.ylabel(f'Average TCC ({("log-transformed" if use_log else "raw")} citations)')  
+    plt.ylabel(f'Average TCC')  
+    # plt.ylabel('Category')
+    plt.grid(axis='y', linestyle='--', alpha=0.4)
+    plt.xticks(fontsize=13, rotation=45, ha='right')
+    plt.yticks(fontsize=13)
+    # plt.title('Top Categories by TCC')
+    # plt.gca().invert_yaxis()
     
-    for i, bar in enumerate(bars):
-        width = bar.get_width()
-        plt.text(width, bar.get_y() + bar.get_height()/2,
-                f'{width:.3f}', 
-                ha='left', va='center', fontweight='bold')
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, height,  # Center text horizontally
+                f'{height:.3f}', 
+                ha='center', va='bottom')
     
     plt.tight_layout()
     plt.savefig(
