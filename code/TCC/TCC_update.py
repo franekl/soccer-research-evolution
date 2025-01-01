@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import numpy as np
 from collections import defaultdict
@@ -5,7 +6,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import os
 from scipy import stats
-
+#%%
 def load_and_prepare_data(filepath, min_year=2017, max_year=2024, historical_lookback=5):
     df_combined = pd.read_csv(filepath)
     df_combined["year"] = df_combined["publication_year"]
@@ -229,15 +230,18 @@ def plot_author_tcc(author_yearly_tcc, author_stats, author_name, use_log, outpu
     
     plt.figure(figsize=(10, 6))
     plt.plot(years, tcc_values, marker='o')
-    plt.xlabel('Year')
+    # plt.xlabel('Year')
     plt.ylabel(f'TCC ({("log-transformed" if use_log else "raw")} citations)')
-    plt.title(f'TCC Evolution for {author_name}')
-    plt.grid(True)
+    # plt.title(f'TCC Evolution for {author_name}')
+    plt.grid(axis='y', linestyle='--', alpha=0.6)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.ylim(bottom=0)
     
     plt.tight_layout()
     plt.savefig(
         os.path.join(output_dir, f'author_tcc_{author_name.replace(" ", "_")}.png'),
-        dpi=300, bbox_inches='tight'
+        dpi=400, bbox_inches='tight'
     )
     plt.close()
     
@@ -304,15 +308,17 @@ def run_analysis(filepath, author_name=None, min_year=2017, max_year=2024, histo
     return category_yearly_collaboration, category_avg_tcc, author_yearly_tcc, author_final_tcc
 
 if __name__ == "__main__":
-    filepath = 'path to dataset'
+    filepath = '../../data/data_export.csv'
     
     author_to_analyze = "John van der Kamp"
     
     results = run_analysis(
         filepath, 
+
         author_name=author_to_analyze,
         min_year=2017, 
         max_year=2024, 
         historical_lookback=5, 
         use_log=True
     )
+# %%
