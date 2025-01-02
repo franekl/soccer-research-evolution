@@ -1,0 +1,11 @@
+pandas
+seaborn
+matplotlib
+scikit-learn
+statsmodels
+numpy
+scipy
+torch
+transformers
+datasets
+tqdm
