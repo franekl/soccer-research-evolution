@@ -62,7 +62,7 @@ This directory contains all Python scripts, Jupyter Notebooks, and associated vi
 ---
 
 ### `data/`
-Contains the datasets used in the study, able to be uploaded to github. The rest can be found using this link: https://ituniversity-my.sharepoint.com/:f:/g/personal/albst_itu_dk/EvIc1MsDaGxKvieVGOdynN4BHov4d2f2huHxgWbu1iCfSg?e=d1hywf
+Contains the datasets used in the study, able to be uploaded to github. The rest can be found using this link (required to use ITU-account): https://ituniversity-my.sharepoint.com/:f:/g/personal/albst_itu_dk/EvIc1MsDaGxKvieVGOdynN4BHov4d2f2huHxgWbu1iCfSg?e=d1hywf
 
 - **`manual_annotations/`**: Annotated datasets used for training the RoBERTa model.
   - `annotations_jason.csv`, `annotations_jonathan.csv`, etc.: Manually annotated files with thematic labels.
