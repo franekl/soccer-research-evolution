@@ -95,6 +95,5 @@ Contains configuration files for Label Studio.
 
 **Institution**: IT University of Copenhagen  
 **Contact**: `{albst, frli, opit, jsov}@itu.dk`
-## Authors
 
 
